@@ -21,9 +21,10 @@ def pca_channel(img_chan,k):
     X=np.float64(img_chan)
     m=len(X)
     W=np.zeros([m,k])
+    xmean=np.zeros(img_chan.shape[1])
     for i in range(img_chan.shape[1]):#列数
-        xmean=np.mean(img_chan[:,i])
-        X[:,i]-=xmean #用到了广播机制
+        xmean[i]=np.mean(img_chan[:,i])
+        X[:,i]-=xmean[i] #用到了广播机制
     cov=np.dot(X,X.T)#协方差
     val,vec=np.linalg.eig(cov)
     item={}
@@ -33,7 +34,10 @@ def pca_channel(img_chan,k):
     for rank,big in enumerate(sort_by_val):#排名，特征
         if(rank>k-1): break #处理k个特征
         W[:,rank]=(big[1][1])#W是特征向量按照特征值从大到小排列
-    return np.dot(np.dot(W,W.T),X)
+    img_chan_o=np.dot(np.dot(W,W.T),X)
+    for i in range(img_chan.shape[1]):
+        img_chan_o[:,i]+=xmean[i]
+    return img_chan_o
 
 def trans(file,filesave,k):
     # 在这里写入图片的路径"C:\\Users\\15694\\Pictures\\图片\\高分辨.jpg"
@@ -51,5 +55,5 @@ def trans(file,filesave,k):
     plt.imshow(image)
     plt.show()
     image.save(filesave)
-trans("高分辨.jpg","图片主成分.jpg",800)
+trans("高分辨.jpg","图片主成分2.jpg",800)
 
